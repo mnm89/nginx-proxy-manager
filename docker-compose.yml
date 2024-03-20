@@ -1,0 +1,50 @@
+version: "3.4"
+
+services:
+  nginx-proxy-manager:
+    hostname: nginx-proxy-manager
+    container_name: nginx-proxy-manager
+    image: "jc21/nginx-proxy-manager:latest"
+    restart: unless-stopped
+    ports:
+      # These ports are in format <host-port>:<container-port>
+      - "80:80" # Public HTTP Port
+      - "443:443" # Public HTTPS Port
+      - "81:81" # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - data:/data
+      - ./proxy.conf:/data/nginx/proxy_host/apps.conf:rw
+
+  first-app:
+    hostname: first-app
+    container_name: first-app
+    restart: unless-stopped
+    build:
+      context: ./first-app
+    expose:
+      - 3000
+
+  second-app:
+    hostname: second-app
+    container_name: second-app
+    restart: unless-stopped
+    build:
+      context: ./second-app
+    expose:
+      - 3000
+
+  third-app:
+    hostname: third-app
+    container_name: third-app
+    restart: unless-stopped
+    build:
+      context: ./third-app
+    expose:
+      - 3000
+
+volumes:
+  data: { driver: local }
+  letsencrypt: { driver: local }
